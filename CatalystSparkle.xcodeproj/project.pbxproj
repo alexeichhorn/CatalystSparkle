@@ -74,6 +74,7 @@
 		8B5E7E8323F6BB3500087E15 /* SparkleBridge.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SparkleBridge.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B5E7E8523F6BB3500087E15 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B5E7E9223F6C0B600087E15 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		C8DCD86E251644F4009A3114 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +99,7 @@
 		8B3E649A23EAE62D00B28168 = {
 			isa = PBXGroup;
 			children = (
+				C8DCD86E251644F4009A3114 /* Package.swift */,
 				8B3F0ABB24095BC600E0F779 /* README.md */,
 				8B3F0AC424098D9C00E0F779 /* Shared */,
 				8B5E7E8423F6BB3500087E15 /* Plugin */,
