@@ -8,7 +8,7 @@ let package = Package(
         .macOS(.v10_15)
     ],
     products: [
-        .library(name: "CatalystSparkle", targets: ["SparkleBridgeClient"])
+        .library(name: "SparkleBridgeClient", targets: ["SparkleBridgeClient"])
     ],
     targets: [
         .binaryTarget(
