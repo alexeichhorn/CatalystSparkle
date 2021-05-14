@@ -14,7 +14,7 @@ let package = Package(
         .binaryTarget(
             name: "SparkleBridgeClient",
             url: "https://github.com/alexeichhorn/CatalystSparkle/releases/download/0.1.7/SparkleBridgeClient-0.1.7.xcframework.zip",
-            checksum: "c057ae446a3444fe6f7ef915a38b6550ba644a9703323eea2f44edb5a9d71486"
+            checksum: "769363e1526f25b783116c402456145336ade2b78a4c0b2bcc693268ab4824f7"
         )
     ]
 )
