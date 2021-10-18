@@ -21,9 +21,9 @@ open class SparkleDriver: NSObject, SparkleBridge {
     
     public typealias AppcastItem = [AnyHashable:Any]
     
-    public typealias UpdateAlertCallback = (UpdateAlertChoice) -> Void
+    public typealias UpdateAlertCallback = (UserUpdateChoice) -> Void
     public typealias UserInitiatedCallback = (UserInitiatedCheckStatus) -> Void
-    public typealias UpdateStatusCallback = (InstallUpdateStatus) -> Void
+    public typealias UpdateStatusCallback = (UserUpdateChoice) -> Void
     public typealias DownloadStatusCallback = (DownloadUpdateStatus) -> Void
     public typealias InformationCallback = (InformationalUpdateAlertChoice) -> Void
     
@@ -36,6 +36,23 @@ open class SparkleDriver: NSObject, SparkleBridge {
         case install
         case installAndRelaunch
         case dismiss
+    }
+    
+    public enum UserUpdateChoice: Int {
+        case skip
+        case install
+        case dismiss
+    }
+    
+    public enum UserUpdateStage: Int {
+        case notDownloaded
+        case downloaded
+        case installing
+    }
+    
+    public struct UserUpdateState {
+        public let stage: UserUpdateStage
+        public let userInitiated: Bool
     }
 
     public enum InformationalUpdateAlertChoice: Int {
@@ -57,32 +74,26 @@ open class SparkleDriver: NSObject, SparkleBridge {
     /// Implementations of the bridge protocol that call onto more Swift-friendly methods
     /// (subclass should not override these)
     
-    public final func showUserInitiatedUpdateCheck(completion updateCheckStatusCompletion: @escaping (UInt) -> Void) {
-        showUserInitiatedUpdateCheck() { response in updateCheckStatusCompletion(response.rawValue) }
+    /*public final func showUserInitiatedUpdateCheck(cancellation: @escaping () -> Void) {
+        showUserInitiatedUpdateCheck() { cancellation() }
+    }*/
+    
+    public final func showUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, state: UserUpdateState, reply: @escaping (Int) -> Void) {
+        showUpdateFound(with: appcastItem, userInitiated: userInitiated, state: state) { respone in reply(respone.rawValue) }
     }
     
-    public final func showUpdateFound(withAppcastItem appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping (Int) -> Void) {
-        showUpdateFound(with: appcastItem, userInitiated: userInitiated) { response in reply(response.rawValue) }
-    }
-    
-    public final func showDownloadedUpdateFound(withAppcastItem appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping (Int) -> Void) {
-        showDownloadedUpdateFound(with: appcastItem, userInitiated: userInitiated) { response in reply(response.rawValue) }
-    }
-
-    public final func showResumableUpdateFound(withAppcastItem appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping (UInt) -> Void) {
-        showResumableUpdateFound(with: appcastItem, userInitiated: userInitiated) { response in reply(response.rawValue) }
+    public func showUpdateFound(withAppcastItem appcastItem: AppcastItem, userInitiated: Bool, stage: Int, reply: @escaping (Int) -> Void) {
+        showUpdateFound(with: appcastItem, userInitiated: userInitiated, state: UserUpdateState(stage: UserUpdateStage(rawValue: stage)!, userInitiated: userInitiated)) { choice in
+            reply(choice.rawValue)
+        }
     }
     
     public final func showInformationalUpdateFound(withAppcastItem appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping (Int) -> Void) {
         showInformationalUpdateFound(with: appcastItem, userInitiated: userInitiated) { response in reply(response.rawValue) }
     }
-
-    public final func showDownloadInitiated(completion downloadUpdateStatusCompletion: @escaping (UInt) -> Void) {
-        showDownloadInitiated() { response in downloadUpdateStatusCompletion(response.rawValue) }
-    }
     
-    public final func showReady(toInstallAndRelaunch installUpdateHandler: @escaping (UInt) -> Void) {
-        showReady() { response in installUpdateHandler(response.rawValue) }
+    public final func showReady(toInstallAndRelaunch reply: @escaping (Int) -> Void) {
+        showReady() { response in reply(response.rawValue) }
     }
 
     /// Bridge/Swiftified API
@@ -93,7 +104,7 @@ open class SparkleDriver: NSObject, SparkleBridge {
     open func dismissUserInitiatedUpdateCheck() { }
     open func showUpdateReleaseNotes(withDownloadData downloadData: Data, encoding: String?, mimeType: String?) { }
     open func showUpdateReleaseNotesFailedToDownloadWithError(_ error: Error) { }
-    open func showUpdateNotFound(acknowledgement: @escaping () -> Void) { }
+    open func showUpdateNotFoundWithError(_ error: Error, acknowledgement: @escaping () -> Void) { }
     open func showUpdaterError(_ error: Error, acknowledgement: @escaping () -> Void) { }
     open func showDownloadDidReceiveExpectedContentLength(_ expectedContentLength: UInt64) { }
     open func showDownloadDidReceiveData(ofLength length: UInt64) { }
@@ -101,13 +112,12 @@ open class SparkleDriver: NSObject, SparkleBridge {
     open func showExtractionReceivedProgress(_ progress: Double) { }
     open func showInstallingUpdate() { }
     open func showSendingTerminationSignal() { }
-    open func showUpdateInstallationDidFinish(acknowledgement: @escaping () -> Void) { }
+    open func showUpdateInstalledAndRelaunched(_ relaunched: Bool, acknowledgement: @escaping () -> Void) { }
     open func dismissUpdateInstallation() { }
-    open func showUserInitiatedUpdateCheck(completion updateCheckStatusCompletion: @escaping UserInitiatedCallback) { }
-    open func showUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping UpdateAlertCallback) { }
-    open func showDownloadedUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping UpdateAlertCallback) { }
-    open func showResumableUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping UpdateStatusCallback) { }
+    open func showUpdateInFocus() { }
+    open func showUserInitiatedUpdateCheck(cancellation: @escaping () -> Void) { }
+    open func showUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, state: UserUpdateState, reply: @escaping UpdateAlertCallback) { }
     open func showInformationalUpdateFound(with appcastItem: AppcastItem, userInitiated: Bool, reply: @escaping InformationCallback) { }
-    open func showDownloadInitiated(completion downloadUpdateStatusCompletion: @escaping DownloadStatusCallback) { }
-    open func showReady(toInstallAndRelaunch installUpdateHandler: @escaping UpdateStatusCallback) { }
+    open func showDownloadInitiated(cancellation: @escaping () -> Void) { }
+    open func showReady(toInstallAndRelaunch reply: @escaping UpdateStatusCallback) { }
 }
