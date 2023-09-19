@@ -16,7 +16,7 @@ let package = Package(
             url: 
 "https://github.com/alexeichhorn/CatalystSparkle/releases/download/0.2.4/SparkleBridgeClient-0.2.4.xcframework.zip",
             checksum:  
-"ce413caa56ebc60faacf186b02c432dc2cf899a5de20a501a427aeb7a550c8f4"
+"8431f722c5cbfb3615a72181cbd4a6a63bcbd9782875d98e35734e8f72a56450"
         )
     ]
 )
