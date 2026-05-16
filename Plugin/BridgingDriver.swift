@@ -100,8 +100,7 @@ internal class BridgingDriver: NSObject, SPUUserDriver {
         }
     }
     
-    
-    func showInstallingUpdate() {
+    func showInstallingUpdate(withApplicationTerminated applicationTerminated: Bool, retryTerminatingApplication: @escaping () -> Void) {
         driver.showInstallingUpdate()
     }
     
@@ -127,4 +126,3 @@ extension SUUpdatePermissionResponse {
         self.init(automaticUpdateChecks: bridged.automaticUpdateChecks.boolValue, sendSystemProfile: bridged.sendSystemProfile.boolValue)
     }
 }
-
