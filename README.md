@@ -92,3 +92,48 @@ done
 This script expects the various Sparkle products to be signed already, so you may also have to modify your copy of Sparkle slightly to sign everything with your keys. 
 
 There are probably simpler/cleaner ways to handle all of this. One idea might be to have the script build Sparkle using `xcodebuild`, supplying overrides for the code signing settings. That way you can ensure they get built right first time, without having to modify Sparkle.
+
+## Building a module-stable binary
+
+Build `SparkleBridgeFramework` through the `CatalystSparkleExample` workspace,
+which supplies the Sparkle project dependency. The client target enables
+`BUILD_LIBRARY_FOR_DISTRIBUTION` in Debug and Release and exposes its Objective-C
+protocols through `Shared/SparkleBridgeClient.h`. The AppKit plugin still uses its
+own bridging header.
+
+For Xcode 27, run from the example workspace directory:
+
+```sh
+xcodebuild -workspace CatalystSparkleExample.xcworkspace \
+  -scheme SparkleBridgeFramework -configuration Release \
+  -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+  DEVELOPMENT_TEAM=83GSA2AB6E CODE_SIGN_STYLE=Automatic \
+  MACOSX_DEPLOYMENT_TARGET=12.0 IPHONEOS_DEPLOYMENT_TARGET=15.0 build
+```
+
+Those deployment-target overrides produce a binary requiring macOS 12 or later.
+Keep both architectures' public `.swiftinterface` files and public headers when
+packaging the XCFramework. Before publishing, run:
+
+```sh
+bash CatalystSparkle/scripts/verify-module-stability.sh /path/to/SparkleBridgeClient.framework
+```
+
+This checks imports and subclassing for arm64 and x86_64 using a temporary copy
+without compiled Swift modules or private interfaces. It does not launch an app,
+modify the input framework, or clean build caches. Cross-version compiler testing
+and an actual update installation remain separate checks.
+
+### Local verification on Xcode 27
+
+On 2026-09-15, the signed Release example built for both architectures and the
+public-interface check passed for each. An isolated copy using Sparkle's public
+EdDSA test key and a localhost feed loaded the plugin, handled both no-update and
+update-available responses, and dismissed the offered update successfully.
+No update archive was downloaded or installed.
+
+The unmodified example still needs its legacy DSA/test-server setup modernized.
+Its Check for Updates button also depends on a user-driver callback that current
+Sparkle no longer sends. The isolated test triggered the check programmatically;
+that trigger and test key are not part of the application source configuration.
+Only Xcode 27 was available, so importing with a different compiler is untested.
